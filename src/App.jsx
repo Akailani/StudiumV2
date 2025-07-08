@@ -45,16 +45,16 @@ function App() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5] text-[#1a1a1a] px-4">
+        <div className="min-h-screen bg-[#f5f5f5] text-[#1a1a1a] flex items-center justify-center">
             {showConfetti && <Confetti />}
-            <div className="w-full max-w-2xl text-center">
+            <div className="flex flex-col items-center justify-center text-center max-w-2xl w-full px-4">
                 <header className="mb-6">
                     <h1 className="text-4xl font-bold flex items-center justify-center">
                         <span className="mr-2">🎓</span> Studium
                     </h1>
                 </header>
 
-                <p className="text-lg">{wizardMessage}</p>
+                <p className="text-lg mb-1">{wizardMessage}</p>
                 <p className="text-md font-semibold">{title}</p>
 
                 <div className="flex gap-4 justify-center my-2">
@@ -64,14 +64,12 @@ function App() {
 
                 <button
                     onClick={handleCompleteQuest}
-                    className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded shadow"
+                    className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded shadow mb-8"
                 >
                     Complete Quest
                 </button>
 
-                <div className="mt-8">
-                    <Leaderboard />
-                </div>
+                <Leaderboard />
             </div>
         </div>
     );
