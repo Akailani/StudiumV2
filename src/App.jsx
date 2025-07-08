@@ -1,151 +1,134 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import './App.css';
-
-const titles = [
-    { title: 'Apprentice', minXP: 0 },
-    { title: 'Spellcaster', minXP: 3000 },
-    { title: 'Archmage', minXP: 5000 },
-    { title: 'Studium Grandmaster', minXP: 8000 }
-];
-
-function getTitle(xp) {
-    return titles.reduce((acc, cur) => (xp >= cur.minXP ? cur.title : acc), titles[0].title);
-}
+import React, { useState, useEffect } from "react";
+import "./App.css";
+import { motion, AnimatePresence } from "framer-motion";
 
 function App() {
-    const [quests, setQuests] = useState([]);
-    const [input, setInput] = useState('');
-    const [xp, setXP] = useState(0);
-    const [streak, setStreak] = useState(0);
-    const [bossHP, setBossHP] = useState(0);
-    const [badges, setBadges] = useState([]);
-    const [messages, setMessages] = useState(['📘 Studium']);
-    const [leaderboard, setLeaderboard] = useState([]);
+    const [quests, setQuests] = useState(() => {
+        const stored = localStorage.getItem("quests");
+        return stored ? JSON.parse(stored) : [];
+    });
+    const [input, setInput] = useState("");
+    const [xp, setXP] = useState(() => Number(localStorage.getItem("xp")) || 0);
+    const [streak, setStreak] = useState(() => Number(localStorage.getItem("streak")) || 0);
+    const [lastCompletedDate, setLastCompletedDate] = useState(() =>
+        localStorage.getItem("lastCompletedDate")
+    );
+    const [bossHP, setBossHP] = useState(() => Number(localStorage.getItem("bossHP")) || 6);
+    const [badges, setBadges] = useState(() => {
+        const stored = localStorage.getItem("badges");
+        return stored ? JSON.parse(stored) : [];
+    });
+
+    const titles = [
+        { xp: 0, title: "Novice" },
+        { xp: 1000, title: "Apprentice" },
+        { xp: 3000, title: "Journeyman" },
+        { xp: 5000, title: "Wizard" },
+        { xp: 8000, title: "Archmage" },
+        { xp: 12000, title: "Legend" },
+    ];
+
+    const currentTitle = titles.reduce((acc, t) => (xp >= t.xp ? t.title : acc), "Novice");
 
     useEffect(() => {
-        const stored = localStorage.getItem('studium-data');
-        if (stored) {
-            const { quests, xp, streak, bossHP, badges, leaderboard } = JSON.parse(stored);
-            setQuests(quests);
-            setXP(xp);
-            setStreak(streak);
-            setBossHP(bossHP);
-            setBadges(badges);
-            setLeaderboard(leaderboard || []);
+        localStorage.setItem("quests", JSON.stringify(quests));
+        localStorage.setItem("xp", xp);
+        localStorage.setItem("streak", streak);
+        localStorage.setItem("lastCompletedDate", lastCompletedDate);
+        localStorage.setItem("bossHP", bossHP);
+        localStorage.setItem("badges", JSON.stringify(badges));
+    }, [quests, xp, streak, lastCompletedDate, bossHP, badges]);
+
+    useEffect(() => {
+        const today = new Date().toISOString().split("T")[0];
+        if (lastCompletedDate && lastCompletedDate !== today) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yString = yesterday.toISOString().split("T")[0];
+            if (lastCompletedDate !== yString) {
+                setStreak(0);
+            }
         }
     }, []);
 
-    useEffect(() => {
-        localStorage.setItem(
-            'studium-data',
-            JSON.stringify({ quests, xp, streak, bossHP, badges, leaderboard })
-        );
-    }, [quests, xp, streak, bossHP, badges, leaderboard]);
-
     const handleAddQuest = () => {
-        if (input.trim()) {
-            const newQuest = { text: input.trim(), done: false };
-            setQuests([...quests, newQuest]);
-            setInput('');
-            setMessages(["🆕 New quest? I like your style."]);
-        }
+        if (input.trim() === "") return;
+        setQuests([...quests, { text: input, completed: false }]);
+        setInput("");
     };
 
     const handleComplete = (index) => {
         const updated = [...quests];
-        if (!updated[index].done) {
-            updated[index].done = true;
-            const newXP = xp + 200;
-            const newBossHP = bossHP + 1;
-            const newBadges = [...badges];
+        if (!updated[index].completed) {
+            updated[index].completed = true;
+            setXP(xp + 100);
+            setBossHP((prev) => (prev > 0 ? prev - 1 : 0));
 
-            if (newXP >= 3000 && !newBadges.includes('🔥 On Fire')) newBadges.push('🔥 On Fire');
-            if (newXP >= 100 && !newBadges.includes('✨ First Steps')) newBadges.push('✨ First Steps');
-            if (streak >= 5 && !newBadges.includes('🧙‍♂️ Consistent Wizard')) newBadges.push('🧙‍♂️ Consistent Wizard');
-
-            setXP(newXP);
-            setBossHP(newBossHP);
-            setBadges(newBadges);
-            setMessages([`✅ Quest complete! You earned 200 XP.`]);
-
-            if (newBossHP >= 6) {
-                setMessages(["🎉 You defeated the boss!"]);
+            const today = new Date().toISOString().split("T")[0];
+            if (lastCompletedDate !== today) {
+                setStreak(streak + 1);
+                setLastCompletedDate(today);
             }
+
+            const newBadges = [...badges];
+            if (xp + 100 >= 100 && !badges.includes("✨ First Steps")) {
+                newBadges.push("✨ First Steps");
+            }
+            if (streak + 1 >= 7 && !badges.includes("🔥 On Fire")) {
+                newBadges.push("🔥 On Fire");
+            }
+            setBadges(newBadges);
         }
         setQuests(updated);
     };
 
-    const title = getTitle(xp);
-
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-            <div className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md">
-                <motion.h1
-                    className="text-3xl font-bold text-center mb-4"
-                    initial={{ y: -20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}>
-                    📘 Studium
-                </motion.h1>
+        <div className="app-container">
+            <h1>📘 Studium</h1>
 
+            {bossHP <= 0 && <p>🎉 You defeated the boss!</p>}
+
+            <p>🆕 New quest? I like your style.</p>
+            <p>🧙‍♂️ <strong>Title:</strong> {currentTitle}</p>
+            <p>⭐ <strong>XP:</strong> {xp}</p>
+            <p>🔥 <strong>Streak:</strong> {streak} days</p>
+            <p className="boss-hp">👾 <strong>Boss HP:</strong> {bossHP}/6</p>
+            <p>🏅 <strong>Badges:</strong> {badges.join(", ") || "None yet"}</p>
+
+            <div>
+                <input
+                    type="text"
+                    value={input}
+                    placeholder="New quest..."
+                    onChange={(e) => setInput(e.target.value)}
+                />
+                <button onClick={handleAddQuest}>Add</button>
+            </div>
+
+            <ul>
                 <AnimatePresence>
-                    {messages.map((msg, i) => (
-                        <motion.p
-                            key={i}
-                            className="text-center mb-2"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}>
-                            {msg}
-                        </motion.p>
+                    {quests.map((quest, index) => (
+                        <motion.li
+                            key={index}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                            transition={{ duration: 0.2 }}
+                            style={{ fontWeight: quest.completed ? "normal" : "bold" }}
+                        >
+                            {quest.text}
+                            {!quest.completed && (
+                                <button onClick={() => handleComplete(index)}>Complete</button>
+                            )}
+                        </motion.li>
                     ))}
                 </AnimatePresence>
+            </ul>
 
-                <div className="space-y-1">
-                    <p><strong>🧙‍♂️ Title:</strong> {title}</p>
-                    <p><strong>⭐ XP:</strong> {xp}</p>
-                    <p><strong>🔥 Streak:</strong> {streak} days</p>
-                    <motion.p
-                        animate={{ scale: bossHP >= 6 ? 1.2 : 1 }}
-                        transition={{ duration: 0.2 }}>
-                        <strong>👾 Boss HP:</strong> {bossHP}/6
-                    </motion.p>
-                    <p><strong>🏅 Badges:</strong> {badges.join(', ') || 'None yet'}</p>
-                </div>
-
-                <div className="mt-4 flex gap-2">
-                    <input
-                        type="text"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        placeholder="New quest..."
-                        className="border rounded px-2 py-1 flex-1"
-                    />
-                    <button onClick={handleAddQuest} className="bg-blue-500 text-white px-3 py-1 rounded">Add</button>
-                </div>
-
-                <ul className="mt-4 space-y-1">
-                    {quests.map((quest, idx) => (
-                        <li key={idx} className="flex items-center gap-2">
-                            <span className={quest.done ? 'line-through text-gray-400' : 'font-bold'}>• {quest.text}</span>
-                            {!quest.done && (
-                                <button onClick={() => handleComplete(idx)} className="ml-auto bg-gray-200 text-xs px-2 py-1 rounded">Complete</button>
-                            )}
-                        </li>
-                    ))}
-                </ul>
-
-                <div className="mt-6">
-                    <h2 className="font-bold mb-2">🏆 Leaderboard</h2>
-                    <ul className="text-sm">
-                        {[...leaderboard, { name: 'You', xp }]
-                            .sort((a, b) => b.xp - a.xp)
-                            .map((entry, i) => (
-                                <li key={i}>{i + 1}. {entry.name}: {entry.xp} XP</li>
-                            ))}
-                    </ul>
-                </div>
-            </div>
+            <h2>🏆 Leaderboard</h2>
+            <ol>
+                <li><strong>You:</strong> {xp} XP</li>
+            </ol>
         </div>
     );
 }
