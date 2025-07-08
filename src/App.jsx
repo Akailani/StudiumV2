@@ -64,31 +64,31 @@ function App() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start p-6 text-center">
-            <h1 className="text-5xl font-bold mb-6 flex items-center gap-2">
+        <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start py-10 px-4 text-center">
+            <h1 className="text-5xl font-bold mb-10 flex items-center gap-2">
                 🎓 Studium
             </h1>
 
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-lg mb-4"
-            >
-                <p>{wizardMessage}</p>
-                <p className="text-xl font-semibold mt-2">{title}</p>
-                <p>
-                    XP: {xp} | 🔥 Streak: {streak}
-                </p>
-            </motion.div>
+            <div className="w-full max-w-md flex flex-col items-center gap-4">
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-lg"
+                >
+                    <p>{wizardMessage}</p>
+                    <p className="text-xl font-semibold mt-2">{title}</p>
+                    <p>
+                        XP: {xp} | 🔥 Streak: {streak}
+                    </p>
+                </motion.div>
 
-            <button
-                onClick={completeQuest}
-                className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition mb-6"
-            >
-                Complete Quest
-            </button>
+                <button
+                    onClick={completeQuest}
+                    className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition"
+                >
+                    Complete Quest
+                </button>
 
-            <div className="w-full max-w-md">
                 <Leaderboard />
             </div>
         </div>
@@ -96,3 +96,4 @@ function App() {
 }
 
 export default App;
+
