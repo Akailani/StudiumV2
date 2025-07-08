@@ -3,25 +3,25 @@
 @tailwind utilities;
 
 body {
-    @apply bg-[#1e1f29] text-white;
+    @apply bg-[#0f172a] text-white;
 }
 
 .card {
-    @apply bg-[#2c2f3b] rounded-2xl shadow-xl p-6 text-center w-full max-w-md;
+    @apply bg-[#1e293b] rounded-2xl shadow-xl p-6 text-center w-full max-w-md;
 }
 
 .button {
     @apply bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold py-2 px-4 rounded-xl shadow;
 }
 
-.avatar {
-    @apply w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-[#a78bfa];
+.stats {
+    @apply text-lg text-[#fbdc5e];
 }
 
 .title {
-    @apply text-3xl font-bold text-[#a78bfa] mt-4;
+    @apply text-3xl font-bold text-white mb-4;
 }
 
-.stats {
-    @apply text-lg text-[#cbd5e1];
+.subtitle {
+    @apply text-xl text-[#fbdc5e] mb-2;
 }
