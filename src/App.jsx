@@ -1,114 +1,106 @@
-// App.jsx
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import Confetti from "react-confetti";
+import Wizard from "./Wizard";
+import "./App.css";
+
+const quests = [
+    "Complete coding challenge",
+    "Read 10 pages",
+    "Do 20 pushups",
+    "Meditate 5 minutes"
+];
 
 function App() {
-    const [quests, setQuests] = useState(() => {
-        const saved = localStorage.getItem('quests');
-        return saved ? JSON.parse(saved) : [];
-    });
-    const [input, setInput] = useState('');
-    const [xp, setXP] = useState(() => parseInt(localStorage.getItem('xp')) || 0);
-    const [streak, setStreak] = useState(() => parseInt(localStorage.getItem('streak')) || 0);
-    const [badges, setBadges] = useState(() => JSON.parse(localStorage.getItem('badges')) || ['✨ First Steps']);
-    const [title, setTitle] = useState(() => localStorage.getItem('title') || 'Apprentice');
-    const [bossHP, setBossHP] = useState(() => parseInt(localStorage.getItem('bossHP')) || 6);
-    const [showVictory, setShowVictory] = useState(false);
+    const [xp, setXp] = useState(0);
+    const [level, setLevel] = useState(1);
+    const [completedQuests, setCompletedQuests] = useState([]);
+    const [showConfetti, setShowConfetti] = useState(false);
+    const [message, setMessage] = useState("Welcome to Studium!");
+    const [streak, setStreak] = useState(0);
+    const [bossHp, setBossHp] = useState(100);
+    const [showTitle, setShowTitle] = useState(false);
 
     useEffect(() => {
-        localStorage.setItem('quests', JSON.stringify(quests));
-        localStorage.setItem('xp', xp);
-        localStorage.setItem('streak', streak);
-        localStorage.setItem('badges', JSON.stringify(badges));
-        localStorage.setItem('title', title);
-        localStorage.setItem('bossHP', bossHP);
-    }, [quests, xp, streak, badges, title, bossHP]);
-
-    useEffect(() => {
-        if (xp >= 4000 && !badges.includes('🔥 On Fire')) {
-            setBadges(prev => [...prev, '🔥 On Fire']);
+        if (xp >= level * 100) {
+            setLevel((prev) => prev + 1);
+            setXp(0);
+            setShowTitle(true);
+            setTimeout(() => setShowTitle(false), 3000);
+            setMessage("You've leveled up! 🎉");
         }
-        if (streak >= 7 && !badges.includes('🧙‍♂️ Consistent Wizard')) {
-            setBadges(prev => [...prev, '🧙‍♂️ Consistent Wizard']);
+    }, [xp, level]);
+
+    const completeQuest = (quest) => {
+        if (!completedQuests.includes(quest)) {
+            setCompletedQuests([...completedQuests, quest]);
+            setXp((prev) => prev + 20);
+            setStreak((prev) => prev + 1);
+            setShowConfetti(true);
+            setBossHp((prev) => Math.max(prev - 10, 0));
+            setMessage("Quest completed! ⚔️");
+            setTimeout(() => setShowConfetti(false), 2000);
         }
-        if (xp >= 5000) setTitle('Elite Wizard');
-        else if (xp >= 3000) setTitle('Master');
-        else if (xp >= 2000) setTitle('Journeyman');
-        else setTitle('Apprentice');
-    }, [xp, streak]);
-
-    const addQuest = () => {
-        if (!input.trim()) return;
-        const newQuest = { text: input, complete: false };
-        setQuests([...quests, newQuest]);
-        setInput('');
-        setXP(prev => prev + 100);
-        setBossHP(prev => {
-            const newHP = prev - 1;
-            if (newHP <= 0) {
-                setShowVictory(true);
-                setTimeout(() => setShowVictory(false), 3000);
-                return 6;
-            }
-            return newHP;
-        });
-    };
-
-    const completeQuest = (index) => {
-        const updated = [...quests];
-        updated[index].complete = true;
-        setQuests(updated);
-        setXP(prev => prev + 200);
     };
 
     return (
-        <div className="App">
-            <h1>📘 Studium</h1>
-            <p>🆕 New quest? I like your style.</p>
-            <p>🧙‍♂️ <strong>Title:</strong> {title}</p>
-            <p>⭐ <strong>XP:</strong> {xp}</p>
-            <p>🔥 <strong>Streak:</strong> {streak} days</p>
-            <p>👾 <strong>Boss HP:</strong> {bossHP}/6</p>
-            <p>🥇 <strong>Badges:</strong> {badges.join(', ')}</p>
+        <div className="App p-4 min-h-screen bg-gradient-to-br from-purple-100 to-blue-200 text-gray-800">
+            {showConfetti && <Confetti />}
 
-            <input
-                placeholder="New quest..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-            />
-            <button onClick={addQuest}>Add</button>
+            <motion.h1
+                className="text-4xl font-bold text-center mb-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+            >
+                Studium
+            </motion.h1>
 
-            <ul>
-                {quests.map((q, i) => (
-                    <li key={i} style={{ fontWeight: q.complete ? 'normal' : 'bold' }}>
-                        {q.text}
-                        {!q.complete && <button onClick={() => completeQuest(i)}>Complete</button>}
-                    </li>
-                ))}
-            </ul>
+            {showTitle && (
+                <motion.div
+                    className="text-xl text-green-700 text-center mb-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                >
+                    🎉 New Title Unlocked: Apprentice
+                </motion.div>
+            )}
 
-            <h2>🏆 Leaderboard</h2>
-            <ol>
-                <li>You: {xp} XP</li>
-            </ol>
+            <div className="text-center mb-4">
+                <p>XP: {xp} / {level * 100}</p>
+                <p>Level: {level}</p>
+                <p>Streak: 🔥 {streak}</p>
+            </div>
 
-            <AnimatePresence>
-                {showVictory && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 50 }}
-                        transition={{ duration: 0.8 }}
-                        className="victory-animation"
+            <div className="flex flex-col items-center mb-6">
+                {quests.map((quest, index) => (
+                    <motion.button
+                        key={index}
+                        onClick={() => completeQuest(quest)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`mb-2 px-4 py-2 rounded bg-indigo-600 text-white shadow ${completedQuests.includes(quest) ? "opacity-50" : ""}`}
+                        disabled={completedQuests.includes(quest)}
                     >
-                        🎉 You defeated the boss!
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                        {completedQuests.includes(quest) ? "✔️ " : ""}{quest}
+                    </motion.button>
+                ))}
+            </div>
+
+            <div className="text-center mb-6">
+                <motion.div
+                    className="w-full h-6 bg-red-300 rounded overflow-hidden"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${100 - bossHp}%` }}
+                    transition={{ duration: 1 }}
+                >
+                    <div className="h-full bg-red-600" style={{ width: `${bossHp}%` }}></div>
+                </motion.div>
+                <p className="mt-2">Boss HP: {bossHp}%</p>
+            </div>
+
+            <Wizard message={message} />
         </div>
     );
 }
 
 export default App;
-
