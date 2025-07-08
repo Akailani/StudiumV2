@@ -21,70 +21,95 @@ function App() {
         { level: 1000, name: 'Archmage' },
     ];
 
+    useEffect(() => {
+        const fetchData = async () => {
+            const userRef = doc(db, 'users', userId);
+            const userSnap = await getDoc(userRef);
+
+            if (userSnap.exists()) {
+                const data = userSnap.data();
+                setXP(data.xp || 0);
+                setStreak(data.streak || 0);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        const currentTitle = titles
+            .slice()
+            .reverse()
+            .find((t) => xp >= t.level);
+
+        if (currentTitle) {
+            setTitle(currentTitle.name);
+        }
+    }, [xp]);
+
     const completeQuest = async () => {
-        const newXP = xp + 50;
+        const xpGain = 50;
+        const newXP = xp + xpGain;
         const newStreak = streak + 1;
+
         setXP(newXP);
         setStreak(newStreak);
 
-        const newTitle = titles.slice().reverse().find(t => newXP >= t.level)?.name || 'Adventurer';
-        if (newTitle !== title) {
-            setTitle(newTitle);
-            setWizardMessage(`🧙‍♂️ "You gained 50 XP! Now you're a ${newTitle}!"`);
-        } else {
-            setWizardMessage(`🧙‍♂️ "+50 XP gained! Keep it up, ${title}!"`);
-        }
+        const newTitle = titles
+            .slice()
+            .reverse()
+            .find((t) => newXP >= t.level)?.name || title;
 
-        await setDoc(doc(db, 'users', userId), {
+        setTitle(newTitle);
+        setWizardMessage(`🧙‍♂️ "You gained ${xpGain} XP! Now you're a ${newTitle}!"`);
+
+        const userRef = doc(db, 'users', userId);
+        await setDoc(userRef, {
             xp: newXP,
             streak: newStreak,
             title: newTitle,
         });
     };
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            const docRef = doc(db, 'users', userId);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                const userData = docSnap.data();
-                setXP(userData.xp || 0);
-                setStreak(userData.streak || 0);
-                setTitle(userData.title || 'Adventurer');
-            }
-        };
-        fetchUser();
-    }, []);
-
-    const currentTitle = titles.find(t => t.name === title);
-    const nextTitle = titles.find(t => t.level > (currentTitle?.level || 0));
-    const progressPercent = nextTitle
-        ? ((xp - currentTitle.level) / (nextTitle.level - currentTitle.level)) * 100
-        : 100;
-
     return (
-        <div className="App bg-gray-100 min-h-screen p-8">
-            <h1 className="text-4xl font-bold text-center mb-6">🎓 Studium</h1>
-            <div className="bg-white p-4 rounded-xl shadow-xl max-w-md mx-auto mb-4">
-                <p className="text-lg mb-2">{wizardMessage}</p>
-                <p className="text-sm text-gray-600 mb-2">{title}</p>
-                <p className="mb-2">XP: {xp} | 🔥 Streak: {streak}</p>
+        <div className="min-h-screen bg-gray-100 text-gray-900 p-6">
+            <div className="max-w-3xl mx-auto">
+                <motion.h1
+                    className="text-5xl font-bold text-center mb-8 flex items-center justify-center gap-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1 }}
+                >
+                    🎓 Studium
+                </motion.h1>
 
-                <div className="w-full h-4 bg-gray-300 rounded overflow-hidden mb-3">
-                    <motion.div
-                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${progressPercent}%` }}
-                        transition={{ duration: 0.5 }}
-                    />
-                </div>
+                <motion.div
+                    className="bg-white p-6 rounded-xl shadow-xl mb-6"
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.6 }}
+                >
+                    <p className="text-lg mb-2">{wizardMessage}</p>
+                    <p className="font-semibold">Wizard</p>
+                    <p className="mt-2">
+                        XP: {xp} | 🔥 Streak: {streak}
+                    </p>
+                    <button
+                        onClick={completeQuest}
+                        className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition"
+                    >
+                        Complete Quest
+                    </button>
+                </motion.div>
 
-                <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={completeQuest}>
-                    Complete Quest
-                </button>
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5, duration: 0.6 }}
+                >
+                    <Leaderboard />
+                </motion.div>
             </div>
-
-            <Leaderboard />
         </div>
     );
 }
