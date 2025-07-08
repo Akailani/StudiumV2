@@ -1,89 +1,34 @@
-/* App.css */
 body {
     margin: 0;
+    padding: 0;
+    background-color: #f7f7f7;
     font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(to bottom right, #e0eafc, #cfdef3);
-    color: #333;
 }
 
-.App {
+.container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
+    max-width: 600px;
+    width: 100%;
+    margin: 2rem auto;
+    background-color: white;
     padding: 2rem;
-}
-
-h1 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
-
-.quest-input {
-    display: flex;
-    gap: 1rem;
-    margin: 1rem 0;
-}
-
-    .quest-input input {
-        padding: 0.75rem;
-        border-radius: 12px;
-        border: 1px solid #ccc;
-        width: 250px;
-        font-size: 1rem;
-    }
-
-    .quest-input button {
-        padding: 0.75rem 1.25rem;
-        border: none;
-        background-color: #6c63ff;
-        color: white;
-        border-radius: 12px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background 0.3s;
-    }
-
-        .quest-input button:hover {
-            background-color: #574fd6;
-        }
-
-.quest-list {
-    list-style: none;
-    padding: 0;
-    width: 100%;
-    max-width: 500px;
-}
-
-    .quest-list li {
-        background-color: white;
-        margin-bottom: 1rem;
-        padding: 1rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-.streak {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-top: 2rem;
-}
-
-.boss-bar {
-    margin-top: 2rem;
-    width: 100%;
-    max-width: 400px;
-    height: 24px;
-    background: #ccc;
     border-radius: 12px;
-    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-.boss-bar-inner {
-    height: 100%;
-    background: #ff595e;
-    transition: width 0.3s ease;
+button {
+    margin-top: 1rem;
+    background-color: #6366f1;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
 }
+
+    button:hover {
+        background-color: #4f46e5;
+    }
