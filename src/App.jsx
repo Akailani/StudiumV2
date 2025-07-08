@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import './App.css';
 import Confetti from 'react-confetti';
 import Wizard from './components/WizardComponent';
@@ -11,6 +12,7 @@ const App = () => {
     const [title, setTitle] = useState("Novice Scholar");
     const [showConfetti, setShowConfetti] = useState(false);
     const [message, setMessage] = useState("Loading wisdom...");
+    const [selectedAvatar, setSelectedAvatar] = useState("/assets/avatars/avatar1.png");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -49,24 +51,51 @@ const App = () => {
         await setDoc(docRef, { exp: newExp, streak: newStreak });
     };
 
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setSelectedAvatar(reader.result); // base64 data
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     return (
-        <div className="container">
-            {showConfetti && <Confetti />}
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-blue-200 p-4">
+            <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 text-center">
+                {showConfetti && <Confetti />}
 
-            <img src="/assets/avatars/avatar1.png" alt="User Avatar" className="avatar" />
+                <img
+                    src={selectedAvatar}
+                    alt="User Avatar"
+                    className="w-24 h-24 rounded-full mx-auto mb-2"
+                />
 
-            <Wizard message={message} />
+                <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="mt-4 mx-auto block"
+                />
 
-            <h1 className="title">🎓 {title}</h1>
+                <Wizard message={message} />
 
-            <div className="stats">
-                <p>XP: <strong>{exp}</strong></p>
-                <p>🔥 Streak: <strong>{streak} days</strong></p>
+                <h1 className="text-3xl font-bold text-purple-800 mt-4">🎓 {title}</h1>
+
+                <div className="mt-4 text-lg">
+                    <p className="mb-2">XP: <span className="font-semibold">{exp}</span></p>
+                    <p>🔥 Streak: <span className="font-semibold">{streak} days</span></p>
+                </div>
+
+                <button
+                    onClick={completeQuest}
+                    className="mt-6 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-xl shadow"
+                >
+                    ✅ Complete Quest
+                </button>
             </div>
-
-            <button onClick={completeQuest} className="quest-button">
-                ✅ Complete Quest
-            </button>
         </div>
     );
 };
