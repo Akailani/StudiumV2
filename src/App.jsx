@@ -38,8 +38,8 @@ export default function App() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-            <div className="max-w-xl w-full bg-white rounded-lg shadow-lg p-6">
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+            <div className="w-full max-w-xl bg-white rounded-lg shadow-lg p-6 mx-auto">
                 {showConfetti && <Confetti />}
                 <h1 className="text-3xl font-bold text-center mb-6">🎓 Studium</h1>
                 <div className="space-y-4 text-center">
