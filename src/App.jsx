@@ -12,7 +12,7 @@ const App = () => {
     const [title, setTitle] = useState("Novice Scholar");
     const [showConfetti, setShowConfetti] = useState(false);
     const [message, setMessage] = useState("Loading wisdom...");
-    const [uploadedImage, setUploadedImage] = useState(null);
+    const [avatarPreview, setAvatarPreview] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -51,49 +51,44 @@ const App = () => {
         await setDoc(docRef, { exp: newExp, streak: newStreak });
     };
 
-    const handleImageUpload = (e) => {
+    const handleAvatarChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            const imageUrl = URL.createObjectURL(file);
-            setUploadedImage(imageUrl);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setAvatarPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 p-4 text-white">
-            <div className="w-full max-w-md bg-gray-900 rounded-2xl shadow-2xl p-6 text-center border border-purple-700">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-blue-200 p-4 dark:from-gray-900 dark:to-gray-800">
+            <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-6 text-center">
                 {showConfetti && <Confetti />}
 
-                {/* Avatar Display Container */}
-                <div className="w-28 h-28 mx-auto mb-4 rounded-full overflow-hidden bg-white shadow-md">
-                    <img
-                        src={uploadedImage || "/assets/avatars/avatar1.png"}
-                        alt="User Avatar"
-                        className="w-full h-full object-cover"
-                    />
-                </div>
+                <img
+                    src={avatarPreview || "/assets/avatars/avatar1.png"}
+                    alt="User Avatar"
+                    className="w-24 h-24 rounded-full mx-auto mb-2 object-cover"
+                />
 
-                {/* Image Upload Input */}
                 <input
                     type="file"
                     accept="image/*"
-                    onChange={handleImageUpload}
-                    className="mb-4 text-sm text-white"
+                    onChange={handleAvatarChange}
+                    className="mb-4"
                 />
 
-                {/* Wizard Assistant */}
                 <Wizard message={message} />
 
-                {/* Title */}
-                <h1 className="text-3xl font-bold text-purple-400 mt-4">🎓 {title}</h1>
+                <h1 className="text-3xl font-bold text-purple-800 dark:text-purple-300 mt-4">🎓 {title}</h1>
 
-                {/* XP and Streak */}
-                <div className="mt-4 text-lg">
+                <div className="mt-4 text-lg text-gray-800 dark:text-gray-200">
                     <p className="mb-2">XP: <span className="font-semibold">{exp}</span></p>
                     <p>🔥 Streak: <span className="font-semibold">{streak} days</span></p>
                 </div>
 
-                {/* Complete Quest Button */}
                 <button
                     onClick={completeQuest}
                     className="mt-6 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-xl shadow"
