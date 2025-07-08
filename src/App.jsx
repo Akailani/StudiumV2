@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import './App.css';
 import Confetti from 'react-confetti';
 import Wizard from './components/WizardComponent';
 import { db } from './firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import './App.css';
 
 const App = () => {
     const [exp, setExp] = useState(0);
@@ -51,8 +51,8 @@ const App = () => {
     };
 
     return (
-        <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-blue-200">
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 text-center">
+        <div className="min-h-screen bg-gradient-to-br from-purple-100 to-blue-200 flex items-center justify-center">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md text-center">
                 {showConfetti && <Confetti />}
 
                 <Wizard message={message} />
