@@ -59,7 +59,7 @@ const App = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#F3E7FF] via-[#D3D3FC] to-[#B1E3FF] p-4">
+        <div className="h-screen w-screen bg-gradient-to-br from-[#F3E7FF] via-[#D3D3FC] to-[#B1E3FF] flex items-center justify-center p-4">
             <div className="w-full max-w-md bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-6 text-center border border-purple-200">
                 {showConfetti && <Confetti />}
 
