@@ -44,30 +44,25 @@ export default function App() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4">
+        <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center text-center px-4">
             {showConfetti && <Confetti />}
-            <header className="mb-12 text-center">
-                <h1 className="text-4xl font-bold mb-2">🎓 Studium</h1>
-            </header>
-
-            <main className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center space-y-4">
-                <p className="text-lg">🧙 "{message}"</p>
-                <p className="font-semibold">{currentTitle}</p>
-                <p>
+            <h1 className="text-4xl font-bold mb-6">🎓 Studium</h1>
+            <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md">
+                <p className="mb-2 text-lg">🧙 "{message}"</p>
+                <p className="font-semibold mb-2">{currentTitle}</p>
+                <p className="mb-4">
                     XP: <strong>{xp}</strong> | 🔥 Streak: <strong>{streak}</strong>
                 </p>
                 <button
                     onClick={handleCompleteQuest}
-                    className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition"
                 >
                     Complete Quest
                 </button>
-            </main>
-
-            <section className="mt-10 text-center">
+            </div>
+            <div className="mt-10">
                 <h2 className="text-2xl font-bold">🏆 Leaderboard</h2>
-                {/* Add leaderboard items here */}
-            </section>
+            </div>
         </div>
     );
 }
