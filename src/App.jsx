@@ -2,63 +2,79 @@ import React, { useState } from "react";
 import Confetti from "react-confetti";
 import Leaderboard from "./Leaderboard";
 
-export default function App() {
-    const [xp, setXp] = useState(0);
+const titles = [
+    { title: "Novice", level: 0 },
+    { title: "Adventurer", level: 100 },
+    { title: "Scholar", level: 200 },
+    { title: "Wizard", level: 300 },
+    { title: "Grandmaster", level: 500 },
+];
+
+function getTitleForXP(xp) {
+    const current = titles
+        .slice()
+        .reverse()
+        .find((t) => xp >= t.level);
+    return current ? current.title : "Novice";
+}
+
+function getMessageForXP(xp) {
+    if (xp >= 500) return '🌟 "You are now a Grandmaster of Studium!"';
+    if (xp >= 300) return '🧙 "You gained 50 XP! Now you\'re a Wizard!"';
+    if (xp >= 200) return '📘 "You are now a Scholar!"';
+    if (xp >= 100) return '🧭 "You are now an Adventurer!"';
+    if (xp > 0) return '📚 "Keep going! You\'re learning!"';
+    return '🧙‍♂️ "Welcome, brave soul."';
+}
+
+function App() {
+    const [xp, setXP] = useState(0);
     const [streak, setStreak] = useState(0);
-    const [title, setTitle] = useState("Adventurer");
-    const [message, setMessage] = useState("Welcome, brave soul.");
     const [showConfetti, setShowConfetti] = useState(false);
 
-    const completeQuest = () => {
-        const newXp = xp + 50;
+    const title = getTitleForXP(xp);
+    const wizardMessage = getMessageForXP(xp);
+
+    const handleCompleteQuest = () => {
+        const newXP = xp + 50;
         const newStreak = streak + 1;
-        setXp(newXp);
+        setXP(newXP);
         setStreak(newStreak);
         setShowConfetti(true);
-
         setTimeout(() => setShowConfetti(false), 3000);
-
-        if (newXp >= 500) {
-            setTitle("Archmage");
-            setMessage("Your wisdom radiates across the land.");
-        } else if (newXp >= 300) {
-            setTitle("Wizard");
-            setMessage("You gained 50 XP! Now you're a Wizard!");
-        } else if (newXp >= 150) {
-            setTitle("Apprentice");
-            setMessage("You're learning quickly, Apprentice!");
-        } else {
-            setTitle("Adventurer");
-            setMessage("Quest complete! Keep going!");
-        }
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="min-h-screen flex flex-col items-center justify-start bg-[#f5f5f5] text-[#1a1a1a] px-4 py-8">
             {showConfetti && <Confetti />}
-            <div className="text-center max-w-xl w-full p-4">
-                <h1 className="text-4xl font-bold mb-6 flex justify-center items-center gap-2">
-                    🎓 Studium
+            <header className="mb-6 text-center">
+                <h1 className="text-4xl font-bold flex items-center justify-center">
+                    <span className="mr-2">🎓</span> Studium
                 </h1>
-                <div className="mb-4">
-                    <p className="text-lg mb-1">🧙‍♂️ "{message}"</p>
-                    <p className="font-medium text-gray-700">{title}</p>
-                    <p className="text-sm text-gray-600 mt-1">
-                        XP: {xp} | 🔥 Streak: {streak}
-                    </p>
-                </div>
-                <button
-                    onClick={completeQuest}
-                    className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition"
-                >
-                    Complete Quest
-                </button>
+            </header>
 
-                <div className="mt-8 text-left">
-                    <h2 className="text-2xl font-semibold mb-2">🏆 Leaderboard</h2>
-                    <Leaderboard />
-                </div>
+            <div className="text-center mb-4">
+                <p className="text-lg">{wizardMessage}</p>
+                <p className="text-md mt-1 font-semibold">{title}</p>
+            </div>
+
+            <div className="flex items-center gap-4 mb-4">
+                <span>XP: {xp}</span>
+                <span>🔥 Streak: {streak}</span>
+            </div>
+
+            <button
+                onClick={handleCompleteQuest}
+                className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded shadow"
+            >
+                Complete Quest
+            </button>
+
+            <div className="mt-8 w-full max-w-md">
+                <Leaderboard />
             </div>
         </div>
     );
 }
+
+export default App;
