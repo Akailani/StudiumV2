@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import './App.css';
 import Confetti from 'react-confetti';
-import Wizard from './components/Wizard';
+import Wizard from './components/WizardComponent'; // <- updated import
 import { db } from './firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
