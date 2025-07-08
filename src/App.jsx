@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import './App.css';
 import { db } from './firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import Leaderboard from './Leaderboard';
+import Leaderboard from './Leaderboard.jsx';
+
 
 function App() {
     const [xp, setXP] = useState(0);
