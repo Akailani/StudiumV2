@@ -1,66 +1,89 @@
-import React, { useState } from "react";
-import Confetti from "react-confetti";
-import "./index.css";
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import Confetti from 'react-confetti';
+import { db } from './firebase';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import './App.css';
 
-const titles = [
-    "Novice", "Apprentice", "Adept", "Scholar", "Mage",
-    "Wizard", "Master", "Sage", "Grandmaster", "Legend"
-];
-
-const messages = [
-    "Welcome, brave soul.",
-    "You've taken your first step into Studium.",
-    "The path is long, but you are not alone.",
-    "Knowledge is your weapon. Go forth.",
-    "Wisdom grows within you.",
-    "The flame of discipline burns bright.",
-    "You are ascending the tower of mastery.",
-    "You wield the arcane forces of learning.",
-    "The world will remember your dedication.",
-    "You are now a Grandmaster of Studium!"
-];
-
-export default function App() {
-    const [xp, setXP] = useState(0);
+const App = () => {
+    const [xp, setXp] = useState(0);
     const [streak, setStreak] = useState(0);
+    const [title, setTitle] = useState('Novice Scholar');
+    const [wizardMessage, setWizardMessage] = useState('Welcome, young scholar!');
     const [showConfetti, setShowConfetti] = useState(false);
 
-    const titleIndex = Math.min(Math.floor(xp / 150), titles.length - 1);
-    const title = titles[titleIndex];
-    const message = messages[titleIndex];
+    useEffect(() => {
+        const fetchData = async () => {
+            const docRef = doc(db, 'users', 'defaultUser');
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                setXp(data.xp || 0);
+                setStreak(data.streak || 0);
+            }
+        };
+        fetchData();
+    }, []);
 
-    const handleQuestComplete = () => {
-        const newXP = xp + 50;
-        setXP(newXP);
-        setStreak(streak + 1);
+    useEffect(() => {
+        const updateTitle = () => {
+            if (xp >= 1000) setTitle('Grandmaster Sage');
+            else if (xp >= 500) setTitle('Master Wizard');
+            else if (xp >= 250) setTitle('Adept Mage');
+            else if (xp >= 100) setTitle('Apprentice');
+            else setTitle('Novice Scholar');
+        };
+        updateTitle();
+    }, [xp]);
+
+    const completeQuest = async () => {
+        const newXp = xp + 50;
+        const newStreak = streak + 1;
+        setXp(newXp);
+        setStreak(newStreak);
+        setWizardMessage(`You gained 50 XP! Keep it up!`);
         setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 2000);
+        setTimeout(() => setShowConfetti(false), 3000);
+        await setDoc(doc(db, 'users', 'defaultUser'), { xp: newXp, streak: newStreak });
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-            <div className="w-full max-w-xl bg-white rounded-lg shadow-lg p-6 mx-auto">
+        <div className="w-full min-h-screen bg-gradient-to-b from-purple-900 to-black text-white">
+            <div className="max-w-sm mx-auto px-4 py-6 flex flex-col items-center">
                 {showConfetti && <Confetti />}
-                <h1 className="text-3xl font-bold text-center mb-6">🎓 Studium</h1>
-                <div className="space-y-4 text-center">
-                    <p>🧙 "{message}"</p>
-                    <p className="font-semibold">{title}</p>
-                    <p>XP: {xp} <span role="img" aria-label="fire">🔥</span> Streak: {streak}</p>
-                    <button
-                        onClick={handleQuestComplete}
-                        className="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded shadow"
-                    >
-                        Complete Quest
-                    </button>
+
+                <motion.img
+                    src="/wizard.png"
+                    alt="Wizard"
+                    initial={{ y: -20 }}
+                    animate={{ y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="w-32 h-32 mb-4"
+                />
+
+                <motion.div
+                    className="bg-purple-800 p-4 rounded-xl shadow-xl text-center mb-4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                >
+                    <p className="text-lg italic">{wizardMessage}</p>
+                </motion.div>
+
+                <div className="bg-purple-700 p-4 rounded-xl shadow-lg w-full text-center mb-4">
+                    <p className="text-xl font-bold">Title: {title}</p>
+                    <p className="text-md">XP: {xp}</p>
+                    <p className="text-md">🔥 Streak: {streak} days</p>
                 </div>
-                <div className="mt-6 text-left">
-                    <h2 className="text-xl font-bold mb-2">🏆 Leaderboard</h2>
-                    <ul className="list-disc list-inside space-y-1">
-                        <li><strong>You</strong> — {xp} XP</li>
-                        {/* Add more players later */}
-                    </ul>
-                </div>
+
+                <button
+                    onClick={completeQuest}
+                    className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-xl shadow"
+                >
+                    Complete Quest
+                </button>
             </div>
         </div>
     );
-}
+};
+
+export default App;
