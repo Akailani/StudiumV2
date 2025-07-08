@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import Confetti from 'react-confetti';
-import Wizard from './components/WizardComponent'; // Make sure this path matches your actual filename
+import Wizard from './components/WizardComponent';
 import { db } from './firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
@@ -52,12 +52,18 @@ const App = () => {
     return (
         <div className="container">
             {showConfetti && <Confetti />}
+
+            <img src="/assets/avatars/avatar1.png" alt="User Avatar" className="avatar" />
+
             <Wizard message={message} />
+
             <h1 className="title">🎓 {title}</h1>
+
             <div className="stats">
                 <p>XP: <strong>{exp}</strong></p>
                 <p>🔥 Streak: <strong>{streak} days</strong></p>
             </div>
+
             <button onClick={completeQuest} className="quest-button">
                 ✅ Complete Quest
             </button>

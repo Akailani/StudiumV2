@@ -44,3 +44,11 @@ body, html {
     .quest-button:hover {
         background-color: #5e3a99;
     }
+.avatar {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #7e5bef;
+    margin-bottom: 1rem;
+}
