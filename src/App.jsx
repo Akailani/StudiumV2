@@ -12,7 +12,7 @@ const App = () => {
     const [title, setTitle] = useState("Novice Scholar");
     const [showConfetti, setShowConfetti] = useState(false);
     const [message, setMessage] = useState("Loading wisdom...");
-    const [avatar, setAvatar] = useState(""); // Base64 image preview
+    const [avatar, setAvatar] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -53,7 +53,7 @@ const App = () => {
 
     const handleAvatarUpload = (e) => {
         const file = e.target.files[0];
-        if (file) {
+        if (file && file.type.startsWith('image/')) {
             const reader = new FileReader();
             reader.onloadend = () => {
                 setAvatar(reader.result);
@@ -67,12 +67,13 @@ const App = () => {
             <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 text-center">
                 {showConfetti && <Confetti />}
 
+                {/* Avatar Upload */}
                 <div className="relative w-24 h-24 mx-auto mb-4">
-                    <label htmlFor="avatarUpload">
+                    <label htmlFor="avatarUpload" className="cursor-pointer">
                         <img
-                            src={avatar || "/assets/avatars/avatar1.png"}
+                            src={avatar ? avatar : "/assets/avatars/avatar1.png"}
                             alt="User Avatar"
-                            className="w-24 h-24 rounded-full object-cover cursor-pointer"
+                            className="w-24 h-24 rounded-full object-cover border-2 border-purple-400"
                         />
                     </label>
                     <input
@@ -84,6 +85,7 @@ const App = () => {
                     />
                 </div>
 
+                {/* Wizard character */}
                 <Wizard message={message} />
 
                 <h1 className="text-3xl font-bold text-purple-800 mt-4">🎓 {title}</h1>
