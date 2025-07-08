@@ -1,74 +1,92 @@
-// src/App.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import './App.css';
-import { db, app, analytics } from './firebase';
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { db } from './firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import Leaderboard from './Leaderboard';
 
 function App() {
     const [xp, setXP] = useState(0);
     const [streak, setStreak] = useState(0);
-    const [title, setTitle] = useState('Wizard');
-    const [wizardMessage, setWizardMessage] = useState("🧙‍♂️ \"Loading wisdom...\"");
+    const [title, setTitle] = useState('Adventurer');
+    const [wizardMessage, setWizardMessage] = useState('🧙‍♂️ "Loading wisdom..."');
 
-    // Load XP and streak from Firestore
+    const userId = 'demoUser';
+
+    const titles = [
+        { level: 0, name: 'Apprentice' },
+        { level: 100, name: 'Scholar' },
+        { level: 300, name: 'Wizard' },
+        { level: 600, name: 'Sage' },
+        { level: 1000, name: 'Archmage' }
+    ];
+
+    const getTitleFromXP = (xp) => {
+        return [...titles].reverse().find(t => xp >= t.level)?.name || 'Adventurer';
+    };
+
+    const fetchData = async () => {
+        const userRef = doc(db, 'users', userId);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+            const userData = userSnap.data();
+            setXP(userData.xp || 0);
+            setStreak(userData.streak || 0);
+            setTitle(getTitleFromXP(userData.xp || 0));
+            setWizardMessage(`🧙‍♂️ "Ah, a ${getTitleFromXP(userData.xp)}! Keep going!"`);
+        } else {
+            await setDoc(userRef, { xp: 0, streak: 0 });
+            setXP(0);
+            setStreak(0);
+            setTitle('Adventurer');
+            setWizardMessage('🧙‍♂️ "Welcome, Adventurer! Let us begin your quest."');
+        }
+    };
+
+    const completeQuest = async () => {
+        const newXP = xp + 50;
+        const newStreak = streak + 1;
+        const newTitle = getTitleFromXP(newXP);
+
+        setXP(newXP);
+        setStreak(newStreak);
+        setTitle(newTitle);
+        setWizardMessage(`🧙‍♂️ "You gained 50 XP! Now you're a ${newTitle}!"`);
+
+        const userRef = doc(db, 'users', userId);
+        await setDoc(userRef, { xp: newXP, streak: newStreak }, { merge: true });
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            const userRef = doc(db, "users", "defaultUser");
-            const docSnap = await getDoc(userRef);
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                setXP(data.xp || 0);
-                setStreak(data.streak || 0);
-            }
-        };
         fetchData();
     }, []);
 
-    // Update wizard message when XP/streak changes
-    useEffect(() => {
-        if (xp === 0) {
-            setWizardMessage("🧙‍♂️ \"Let the journey begin!\"");
-        } else if (xp < 100) {
-            setWizardMessage("🧙‍♂️ \"You're learning quickly!\"");
-        } else if (xp < 500) {
-            setWizardMessage("🧙‍♂️ \"The arcane arts suit you well.\"");
-        } else if (xp < 1000) {
-            setWizardMessage("🧙‍♂️ \"You're mastering the mystic scrolls!\"");
-        } else {
-            setWizardMessage("🧙‍♂️ \"Your wisdom rivals the ancients!\"");
-        }
-    }, [xp, streak]);
-
-    const handleCompleteQuest = async () => {
-        const newXP = xp + 10;
-        const newStreak = streak + 1;
-        setXP(newXP);
-        setStreak(newStreak);
-
-        const userRef = doc(db, "users", "defaultUser");
-        await setDoc(userRef, { xp: newXP, streak: newStreak });
-    };
-
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6">
             <motion.div
-                className="bg-white p-6 rounded-2xl shadow-xl text-center"
-                initial={{ opacity: 0, y: 30 }}
+                className="bg-white shadow-xl rounded-2xl p-8 max-w-md w-full text-center"
+                initial={{ opacity: 0, y: -30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.8 }}
             >
-                <h1 className="text-4xl font-bold mb-2">🎓 Studium</h1>
+                <h1 className="text-4xl font-bold mb-4">🎓 Studium</h1>
                 <p className="text-lg mb-2">{wizardMessage}</p>
-                <p className="mb-2">{title}</p>
-                <p className="mb-4">XP: {xp} | 🔥 Streak: {streak}</p>
+                <p className="text-xl font-semibold mb-2">{title}</p>
+                <p className="text-md text-gray-700 mb-4">
+                    XP: {xp} | 🔥 Streak: {streak}
+                </p>
                 <button
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-xl hover:bg-indigo-700 transition"
-                    onClick={handleCompleteQuest}
+                    onClick={completeQuest}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition duration-300"
                 >
                     Complete Quest
                 </button>
             </motion.div>
+
+            <div className="mt-12 w-full max-w-md">
+                <Leaderboard />
+            </div>
         </div>
     );
 }
