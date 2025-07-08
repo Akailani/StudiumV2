@@ -47,31 +47,31 @@ function App() {
     return (
         <div className="min-h-screen flex flex-col items-center justify-start bg-[#f5f5f5] text-[#1a1a1a] px-4 py-8">
             {showConfetti && <Confetti />}
-            <header className="mb-6 text-center">
-                <h1 className="text-4xl font-bold flex items-center justify-center">
-                    <span className="mr-2">🎓</span> Studium
-                </h1>
-            </header>
+            <div className="w-full max-w-2xl flex flex-col items-center text-center space-y-4">
+                <header className="mb-4">
+                    <h1 className="text-4xl font-bold flex items-center justify-center">
+                        <span className="mr-2">🎓</span> Studium
+                    </h1>
+                </header>
 
-            <div className="text-center mb-4">
                 <p className="text-lg">{wizardMessage}</p>
-                <p className="text-md mt-1 font-semibold">{title}</p>
-            </div>
+                <p className="text-md font-semibold">{title}</p>
 
-            <div className="flex items-center gap-4 mb-4">
-                <span>XP: {xp}</span>
-                <span>🔥 Streak: {streak}</span>
-            </div>
+                <div className="flex gap-4 justify-center">
+                    <span>XP: {xp}</span>
+                    <span>🔥 Streak: {streak}</span>
+                </div>
 
-            <button
-                onClick={handleCompleteQuest}
-                className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded shadow"
-            >
-                Complete Quest
-            </button>
+                <button
+                    onClick={handleCompleteQuest}
+                    className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded shadow"
+                >
+                    Complete Quest
+                </button>
 
-            <div className="mt-8 w-full max-w-md">
-                <Leaderboard />
+                <div className="mt-6 w-full">
+                    <Leaderboard />
+                </div>
             </div>
         </div>
     );
