@@ -1,106 +1,90 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import Confetti from "react-confetti";
-import Wizard from "./Wizard";
+import { motion, AnimatePresence } from "framer-motion";
 import "./App.css";
 
-const quests = [
-    "Complete coding challenge",
-    "Read 10 pages",
-    "Do 20 pushups",
-    "Meditate 5 minutes"
-];
-
-function App() {
-    const [xp, setXp] = useState(0);
-    const [level, setLevel] = useState(1);
-    const [completedQuests, setCompletedQuests] = useState([]);
-    const [showConfetti, setShowConfetti] = useState(false);
-    const [message, setMessage] = useState("Welcome to Studium!");
+const App = () => {
+    const [questsCompleted, setQuestsCompleted] = useState(0);
     const [streak, setStreak] = useState(0);
-    const [bossHp, setBossHp] = useState(100);
-    const [showTitle, setShowTitle] = useState(false);
+    const [showConfetti, setShowConfetti] = useState(false);
+    const [bossHP, setBossHP] = useState(100);
+    const [title, setTitle] = useState("Novice");
+    const [message, setMessage] = useState("Welcome, young adventurer!");
+    const [leaderboard, setLeaderboard] = useState([
+        { name: "You", xp: 0 },
+        { name: "Rival1", xp: 100 },
+        { name: "Rival2", xp: 200 },
+    ]);
 
     useEffect(() => {
-        if (xp >= level * 100) {
-            setLevel((prev) => prev + 1);
-            setXp(0);
-            setShowTitle(true);
-            setTimeout(() => setShowTitle(false), 3000);
-            setMessage("You've leveled up! 🎉");
-        }
-    }, [xp, level]);
+        const titles = [
+            "Novice",
+            "Apprentice",
+            "Scholar",
+            "Sage",
+            "Mastermind",
+            "Legend",
+        ];
+        const newTitle = titles[Math.min(Math.floor(questsCompleted / 3), titles.length - 1)];
+        setTitle(newTitle);
+    }, [questsCompleted]);
 
-    const completeQuest = (quest) => {
-        if (!completedQuests.includes(quest)) {
-            setCompletedQuests([...completedQuests, quest]);
-            setXp((prev) => prev + 20);
-            setStreak((prev) => prev + 1);
-            setShowConfetti(true);
-            setBossHp((prev) => Math.max(prev - 10, 0));
-            setMessage("Quest completed! ⚔️");
-            setTimeout(() => setShowConfetti(false), 2000);
-        }
+    const handleCompleteQuest = () => {
+        const newXP = (questsCompleted + 1) * 50;
+        setQuestsCompleted((prev) => prev + 1);
+        setStreak((prev) => prev + 1);
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+
+        const damage = Math.floor(Math.random() * 20) + 10;
+        setBossHP((prev) => Math.max(0, prev - damage));
+        setMessage("The wizard cheers! +" + damage + " damage to the boss!");
+
+        setLeaderboard((prev) => {
+            const updated = prev.map((user) =>
+                user.name === "You" ? { ...user, xp: newXP } : user
+            );
+            return updated.sort((a, b) => b.xp - a.xp);
+        });
     };
 
     return (
-        <div className="App p-4 min-h-screen bg-gradient-to-br from-purple-100 to-blue-200 text-gray-800">
+        <div className="App">
             {showConfetti && <Confetti />}
 
-            <motion.h1
-                className="text-4xl font-bold text-center mb-4"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-            >
-                Studium
+            <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                Studium: Quest to Learn
             </motion.h1>
 
-            {showTitle && (
+            <p>🧙‍♂️ <i>{message}</i></p>
+            <p>🎖️ Title: {title}</p>
+            <p>🔥 Streak: {streak}</p>
+            <p>✅ Quests Completed: {questsCompleted}</p>
+
+            <button onClick={handleCompleteQuest}>Complete Quest</button>
+
+            <div className="boss-battle">
                 <motion.div
-                    className="text-xl text-green-700 text-center mb-2"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                >
-                    🎉 New Title Unlocked: Apprentice
-                </motion.div>
-            )}
-
-            <div className="text-center mb-4">
-                <p>XP: {xp} / {level * 100}</p>
-                <p>Level: {level}</p>
-                <p>Streak: 🔥 {streak}</p>
+                    className="boss-hp-bar"
+                    initial={{ width: "100%" }}
+                    animate={{ width: `${bossHP}%` }}
+                    transition={{ duration: 0.5 }}
+                />
+                <p>🧟 Boss HP: {bossHP}/100</p>
             </div>
 
-            <div className="flex flex-col items-center mb-6">
-                {quests.map((quest, index) => (
-                    <motion.button
-                        key={index}
-                        onClick={() => completeQuest(quest)}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`mb-2 px-4 py-2 rounded bg-indigo-600 text-white shadow ${completedQuests.includes(quest) ? "opacity-50" : ""}`}
-                        disabled={completedQuests.includes(quest)}
-                    >
-                        {completedQuests.includes(quest) ? "✔️ " : ""}{quest}
-                    </motion.button>
-                ))}
+            <div className="leaderboard">
+                <h2>🏆 Leaderboard</h2>
+                <ul>
+                    {leaderboard.map((user, i) => (
+                        <li key={i}>
+                            {i + 1}. {user.name} — {user.xp} XP
+                        </li>
+                    ))}
+                </ul>
             </div>
-
-            <div className="text-center mb-6">
-                <motion.div
-                    className="w-full h-6 bg-red-300 rounded overflow-hidden"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${100 - bossHp}%` }}
-                    transition={{ duration: 1 }}
-                >
-                    <div className="h-full bg-red-600" style={{ width: `${bossHp}%` }}></div>
-                </motion.div>
-                <p className="mt-2">Boss HP: {bossHp}%</p>
-            </div>
-
-            <Wizard message={message} />
         </div>
     );
-}
+};
 
 export default App;
