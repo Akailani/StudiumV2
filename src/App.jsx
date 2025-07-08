@@ -1,13 +1,12 @@
-import React from "react";
-import "./styles.css";
+import React from 'react';
+import './App.css';
 
 function App() {
     return (
-        <div className="center-screen">
-            <div className="card">
-                <h1 className="title">Welcome to Studium</h1>
-                <p className="subtitle">Your study quests start here 🧙‍♂️</p>
-            </div>
+        <div className="app-container">
+            <h1>🧙‍♂️ Welcome to Studium</h1>
+            <p>Track your quests, earn XP, and defeat procrastination bosses!</p>
+            <button>Start Quest</button>
         </div>
     );
 }
