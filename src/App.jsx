@@ -45,10 +45,10 @@ function App() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-start bg-[#f5f5f5] text-[#1a1a1a] px-4 py-8">
+        <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5] text-[#1a1a1a] px-4">
             {showConfetti && <Confetti />}
-            <div className="w-full max-w-2xl flex flex-col items-center text-center space-y-4">
-                <header className="mb-4">
+            <div className="w-full max-w-2xl text-center">
+                <header className="mb-6">
                     <h1 className="text-4xl font-bold flex items-center justify-center">
                         <span className="mr-2">🎓</span> Studium
                     </h1>
@@ -57,7 +57,7 @@ function App() {
                 <p className="text-lg">{wizardMessage}</p>
                 <p className="text-md font-semibold">{title}</p>
 
-                <div className="flex gap-4 justify-center">
+                <div className="flex gap-4 justify-center my-2">
                     <span>XP: {xp}</span>
                     <span>🔥 Streak: {streak}</span>
                 </div>
@@ -69,7 +69,7 @@ function App() {
                     Complete Quest
                 </button>
 
-                <div className="mt-6 w-full">
+                <div className="mt-8">
                     <Leaderboard />
                 </div>
             </div>
