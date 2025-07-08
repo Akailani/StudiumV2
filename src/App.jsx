@@ -1,163 +1,150 @@
-import React, { useState, useEffect } from "react";
-import "./index.css";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import './App.css';
 
-function getTodayDateStr() {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-}
+const titles = [
+    { title: 'Apprentice', minXP: 0 },
+    { title: 'Spellcaster', minXP: 3000 },
+    { title: 'Archmage', minXP: 5000 },
+    { title: 'Studium Grandmaster', minXP: 8000 }
+];
 
-function getWizardMessage({ xp, streak }) {
-    const messages = [
-        `🔥 You've earned ${xp} XP! On fire 🔥`,
-        streak > 0
-            ? `🔥 You're on a ${streak}-day streak! Keep going!`
-            : "Let's get that streak started!",
-        "📚 Procrastinators fear you now...",
-        "✨ Study magic intensifies!",
-        "🧙‍♂️ Tiny tasks make mighty heroes.",
-        "🆕 New quest? I like your style.",
-        "💧 Don’t forget hydration and rest too, hero.",
-    ];
-    return messages[Math.floor(Math.random() * messages.length)];
+function getTitle(xp) {
+    return titles.reduce((acc, cur) => (xp >= cur.minXP ? cur.title : acc), titles[0].title);
 }
 
 function App() {
-    const [xp, setXP] = useState(2800);
-    const [quests, setQuests] = useState(() => {
-        const saved = localStorage.getItem("studium-quests");
-        return saved ? JSON.parse(saved) : [
-            { id: 1, text: "Read Chapter 5", completed: false },
-            { id: 2, text: "Review notes", completed: false },
-            { id: 3, text: "Complete worksheet", completed: false }
-        ];
-    });
-
-    const [streak, setStreak] = useState(() => {
-        const saved = localStorage.getItem("studium-streak");
-        return saved ? parseInt(saved) : 0;
-    });
-
-    const [lastActiveDate, setLastActiveDate] = useState(() =>
-        localStorage.getItem("studium-lastActiveDate") || ""
-    );
-
-    const [wizardMsg, setWizardMsg] = useState("🧙‍♂️ Alan! Let's complete your study quests!");
-    const [bossProgress, setBossProgress] = useState(6);
-    const [newTask, setNewTask] = useState("");
+    const [quests, setQuests] = useState([]);
+    const [input, setInput] = useState('');
+    const [xp, setXP] = useState(0);
+    const [streak, setStreak] = useState(0);
+    const [bossHP, setBossHP] = useState(0);
     const [badges, setBadges] = useState([]);
+    const [messages, setMessages] = useState(['📘 Studium']);
+    const [leaderboard, setLeaderboard] = useState([]);
 
     useEffect(() => {
-        const today = getTodayDateStr();
-        if (lastActiveDate !== today) {
-            if (lastActiveDate === getTodayDateStr(new Date(Date.now() - 86400000))) {
-                setStreak(prev => prev + 1);
-            } else {
-                setStreak(0);
-            }
-            setLastActiveDate(today);
-            localStorage.setItem("studium-lastActiveDate", today);
+        const stored = localStorage.getItem('studium-data');
+        if (stored) {
+            const { quests, xp, streak, bossHP, badges, leaderboard } = JSON.parse(stored);
+            setQuests(quests);
+            setXP(xp);
+            setStreak(streak);
+            setBossHP(bossHP);
+            setBadges(badges);
+            setLeaderboard(leaderboard || []);
         }
     }, []);
 
     useEffect(() => {
-        setWizardMsg(getWizardMessage({ xp, streak }));
-        localStorage.setItem("studium-quests", JSON.stringify(quests));
-        localStorage.setItem("studium-streak", streak);
-    }, [xp, streak, quests]);
-
-    const checkForNewBadges = (xp, streak, quests) => {
-        const earned = [];
-        if (quests.some(q => q.completed)) earned.push("✨ First Steps");
-        if (xp >= 1000) earned.push("🔥 On Fire");
-        if (streak >= 3) earned.push("🧊 Consistent Wizard");
-        setBadges(earned);
-    };
-
-    useEffect(() => {
-        checkForNewBadges(xp, streak, quests);
-    }, [xp, streak, quests]);
-
-    const handleComplete = (id) => {
-        const updated = quests.map(q =>
-            q.id === id ? { ...q, completed: true } : q
+        localStorage.setItem(
+            'studium-data',
+            JSON.stringify({ quests, xp, streak, bossHP, badges, leaderboard })
         );
-        setQuests(updated);
-        setXP(prev => prev + 100);
-        setBossProgress(prev => prev + 1);
+    }, [quests, xp, streak, bossHP, badges, leaderboard]);
+
+    const handleAddQuest = () => {
+        if (input.trim()) {
+            const newQuest = { text: input.trim(), done: false };
+            setQuests([...quests, newQuest]);
+            setInput('');
+            setMessages(["🆕 New quest? I like your style."]);
+        }
     };
 
-    const handleAddTask = () => {
-        if (!newTask.trim()) return;
-        const task = {
-            id: quests.length + 1,
-            text: newTask,
-            completed: false,
-        };
-        setQuests([...quests, task]);
-        setNewTask("");
+    const handleComplete = (index) => {
+        const updated = [...quests];
+        if (!updated[index].done) {
+            updated[index].done = true;
+            const newXP = xp + 200;
+            const newBossHP = bossHP + 1;
+            const newBadges = [...badges];
+
+            if (newXP >= 3000 && !newBadges.includes('🔥 On Fire')) newBadges.push('🔥 On Fire');
+            if (newXP >= 100 && !newBadges.includes('✨ First Steps')) newBadges.push('✨ First Steps');
+            if (streak >= 5 && !newBadges.includes('🧙‍♂️ Consistent Wizard')) newBadges.push('🧙‍♂️ Consistent Wizard');
+
+            setXP(newXP);
+            setBossHP(newBossHP);
+            setBadges(newBadges);
+            setMessages([`✅ Quest complete! You earned 200 XP.`]);
+
+            if (newBossHP >= 6) {
+                setMessages(["🎉 You defeated the boss!"]);
+            }
+        }
+        setQuests(updated);
     };
+
+    const title = getTitle(xp);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 font-sans p-4">
-            <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-xl">
+        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+            <div className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md">
                 <motion.h1
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-4xl font-bold text-center mb-6"
-                >
+                    className="text-3xl font-bold text-center mb-4"
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}>
                     📘 Studium
                 </motion.h1>
 
-                <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-xl text-center mb-4"
-                >
-                    {wizardMsg}
-                </motion.p>
+                <AnimatePresence>
+                    {messages.map((msg, i) => (
+                        <motion.p
+                            key={i}
+                            className="text-center mb-2"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}>
+                            {msg}
+                        </motion.p>
+                    ))}
+                </AnimatePresence>
 
-                <div className="space-y-2">
-                    <p>⭐ <strong>XP:</strong> {xp}</p>
-                    <p>🔥 <strong>Streak:</strong> {streak} days</p>
-                    <p>👾 <strong>Boss HP:</strong> {bossProgress}/6</p>
-                    <p>🏅 <strong>Badges:</strong> {badges.join(", ")}</p>
+                <div className="space-y-1">
+                    <p><strong>🧙‍♂️ Title:</strong> {title}</p>
+                    <p><strong>⭐ XP:</strong> {xp}</p>
+                    <p><strong>🔥 Streak:</strong> {streak} days</p>
+                    <motion.p
+                        animate={{ scale: bossHP >= 6 ? 1.2 : 1 }}
+                        transition={{ duration: 0.2 }}>
+                        <strong>👾 Boss HP:</strong> {bossHP}/6
+                    </motion.p>
+                    <p><strong>🏅 Badges:</strong> {badges.join(', ') || 'None yet'}</p>
                 </div>
 
-                <div className="flex items-center mt-4 gap-2">
+                <div className="mt-4 flex gap-2">
                     <input
-                        className="border rounded px-2 py-1 flex-grow"
-                        value={newTask}
-                        onChange={(e) => setNewTask(e.target.value)}
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
                         placeholder="New quest..."
+                        className="border rounded px-2 py-1 flex-1"
                     />
-                    <button
-                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                        onClick={handleAddTask}
-                    >
-                        Add
-                    </button>
+                    <button onClick={handleAddQuest} className="bg-blue-500 text-white px-3 py-1 rounded">Add</button>
                 </div>
 
                 <ul className="mt-4 space-y-1">
-                    {quests.map(q => (
-                        <li key={q.id} className="flex items-center justify-between">
-                            <span className={q.completed ? "line-through text-gray-500" : "font-bold"}>{q.text}</span>
-                            {!q.completed && (
-                                <button
-                                    className="text-sm text-green-500 hover:underline"
-                                    onClick={() => handleComplete(q.id)}
-                                >
-                                    Complete
-                                </button>
+                    {quests.map((quest, idx) => (
+                        <li key={idx} className="flex items-center gap-2">
+                            <span className={quest.done ? 'line-through text-gray-400' : 'font-bold'}>• {quest.text}</span>
+                            {!quest.done && (
+                                <button onClick={() => handleComplete(idx)} className="ml-auto bg-gray-200 text-xs px-2 py-1 rounded">Complete</button>
                             )}
                         </li>
                     ))}
                 </ul>
 
-                {bossProgress >= 6 && (
-                    <p className="mt-4 text-pink-500 text-center text-lg">🎉 You defeated the boss!</p>
-                )}
+                <div className="mt-6">
+                    <h2 className="font-bold mb-2">🏆 Leaderboard</h2>
+                    <ul className="text-sm">
+                        {[...leaderboard, { name: 'You', xp }]
+                            .sort((a, b) => b.xp - a.xp)
+                            .map((entry, i) => (
+                                <li key={i}>{i + 1}. {entry.name}: {entry.xp} XP</li>
+                            ))}
+                    </ul>
+                </div>
             </div>
         </div>
     );
