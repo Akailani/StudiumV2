@@ -1,44 +1,46 @@
-/* App.css */
-
-body {
+body, html {
+    height: 100%;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: radial-gradient(ellipse at top, #1e1e2f, #0f0f1e);
-    color: white;
-    min-height: 100vh;
+    font-family: sans-serif;
+    background: linear-gradient(to bottom right, #e0c3fc, #8ec5fc);
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
 }
 
-.app-container {
-    text-align: center;
-    background: rgba(255, 255, 255, 0.05);
+.container {
+    background-color: white;
+    border-radius: 1.5rem;
     padding: 2rem;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
     width: 90%;
-    max-width: 500px;
+    max-width: 400px;
 }
 
-h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+.title {
+    font-size: 1.8rem;
+    color: #5e3a99;
+    margin-top: 1rem;
 }
 
-button {
-    padding: 0.6rem 1.2rem;
-    font-size: 1rem;
-    border-radius: 10px;
-    border: none;
-    background: #4a90e2;
+.stats {
+    font-size: 1.1rem;
+    margin: 1rem 0;
+}
+
+.quest-button {
+    background-color: #7e5bef;
     color: white;
+    font-weight: bold;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 1rem;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background-color 0.3s ease;
 }
 
-    button:hover {
-        background: #357ab8;
+    .quest-button:hover {
+        background-color: #5e3a99;
     }
