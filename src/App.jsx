@@ -12,7 +12,7 @@ const App = () => {
     const [title, setTitle] = useState("Novice Scholar");
     const [showConfetti, setShowConfetti] = useState(false);
     const [message, setMessage] = useState("Loading wisdom...");
-    const [selectedAvatar, setSelectedAvatar] = useState("/assets/avatars/avatar1.png");
+    const [avatar, setAvatar] = useState(""); // Base64 image preview
 
     useEffect(() => {
         const fetchData = async () => {
@@ -51,12 +51,12 @@ const App = () => {
         await setDoc(docRef, { exp: newExp, streak: newStreak });
     };
 
-    const handleImageUpload = (e) => {
+    const handleAvatarUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setSelectedAvatar(reader.result); // base64 data
+                setAvatar(reader.result);
             };
             reader.readAsDataURL(file);
         }
@@ -67,18 +67,22 @@ const App = () => {
             <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 text-center">
                 {showConfetti && <Confetti />}
 
-                <img
-                    src={selectedAvatar}
-                    alt="User Avatar"
-                    className="w-24 h-24 rounded-full mx-auto mb-2"
-                />
-
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="mt-4 mx-auto block"
-                />
+                <div className="relative w-24 h-24 mx-auto mb-4">
+                    <label htmlFor="avatarUpload">
+                        <img
+                            src={avatar || "/assets/avatars/avatar1.png"}
+                            alt="User Avatar"
+                            className="w-24 h-24 rounded-full object-cover cursor-pointer"
+                        />
+                    </label>
+                    <input
+                        id="avatarUpload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarUpload}
+                        className="hidden"
+                    />
+                </div>
 
                 <Wizard message={message} />
 
