@@ -45,9 +45,9 @@ function App() {
     };
 
     return (
-        <div className="min-h-screen bg-[#f5f5f5] text-[#1a1a1a] flex items-center justify-center">
+        <div className="h-screen flex items-center justify-center bg-[#f5f5f5] text-[#1a1a1a]">
             {showConfetti && <Confetti />}
-            <div className="flex flex-col items-center justify-center text-center max-w-2xl w-full px-4">
+            <div className="flex flex-col items-center justify-center text-center h-full w-full px-4">
                 <header className="mb-6">
                     <h1 className="text-4xl font-bold flex items-center justify-center">
                         <span className="mr-2">🎓</span> Studium
