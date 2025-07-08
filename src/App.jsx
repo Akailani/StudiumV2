@@ -4,7 +4,6 @@ import './App.css';
 import { db } from './firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import Leaderboard from './Leaderboard';
-import Wizard from './Wizard';
 
 function App() {
     const [xp, setXP] = useState(0);
@@ -29,10 +28,11 @@ function App() {
         setXP(newXP);
         setStreak(newStreak);
 
-        const newTitle = titles
-            .slice()
-            .reverse()
-            .find(t => newXP >= t.level)?.name || 'Adventurer';
+        const newTitle =
+            titles
+                .slice()
+                .reverse()
+                .find(t => newXP >= t.level)?.name || 'Adventurer';
 
         setTitle(newTitle);
         setWizardMessage(`🧙‍♂️ "You gained 50 XP! Now you're a ${newTitle}!"`);
@@ -64,15 +64,15 @@ function App() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gray-100 text-gray-800 flex flex-col items-center p-8">
-            <h1 className="text-5xl font-bold mb-6 flex items-center">
+        <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start p-6 text-center">
+            <h1 className="text-5xl font-bold mb-6 flex items-center gap-2">
                 🎓 Studium
             </h1>
 
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-lg mb-4 text-center"
+                className="text-lg mb-4"
             >
                 <p>{wizardMessage}</p>
                 <p className="text-xl font-semibold mt-2">{title}</p>
@@ -88,7 +88,9 @@ function App() {
                 Complete Quest
             </button>
 
-            <Leaderboard />
+            <div className="w-full max-w-md">
+                <Leaderboard />
+            </div>
         </div>
     );
 }
