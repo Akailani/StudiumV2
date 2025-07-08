@@ -1,54 +1,27 @@
-body, html {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    font-family: sans-serif;
-    background: linear-gradient(to bottom right, #e0c3fc, #8ec5fc);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    @apply bg-[#1e1f29] text-white;
 }
 
-.container {
-    background-color: white;
-    border-radius: 1.5rem;
-    padding: 2rem;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    width: 90%;
-    max-width: 400px;
+.card {
+    @apply bg-[#2c2f3b] rounded-2xl shadow-xl p-6 text-center w-full max-w-md;
+}
+
+.button {
+    @apply bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-bold py-2 px-4 rounded-xl shadow;
+}
+
+.avatar {
+    @apply w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-[#a78bfa];
 }
 
 .title {
-    font-size: 1.8rem;
-    color: #5e3a99;
-    margin-top: 1rem;
+    @apply text-3xl font-bold text-[#a78bfa] mt-4;
 }
 
 .stats {
-    font-size: 1.1rem;
-    margin: 1rem 0;
-}
-
-.quest-button {
-    background-color: #7e5bef;
-    color: white;
-    font-weight: bold;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-    .quest-button:hover {
-        background-color: #5e3a99;
-    }
-.avatar {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 3px solid #7e5bef;
-    margin-bottom: 1rem;
+    @apply text-lg text-[#cbd5e1];
 }
