@@ -1,46 +1,76 @@
-import { useState, useEffect } from 'react';
+// src/App.jsx
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import './App.css';
-import { db } from './firebase';
+import { db, app, analytics } from './firebase';
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import Wizard from './Wizard';
 
-export default function App() {
+function App() {
     const [xp, setXP] = useState(0);
-    const [streak, setStreak] = useState(1);
-    const [showConfetti, setShowConfetti] = useState(false);
-    const [quote, setQuote] = useState("Loading wisdom...");
+    const [streak, setStreak] = useState(0);
+    const [title, setTitle] = useState('Wizard');
+    const [wizardMessage, setWizardMessage] = useState("🧙‍♂️ \"Loading wisdom...\"");
 
+    // Load XP and streak from Firestore
     useEffect(() => {
-        fetch('https://type.fit/api/quotes')
-            .then(res => res.json())
-            .then(data => {
-                const random = Math.floor(Math.random() * data.length);
-                setQuote(data[random].text);
-            });
+        const fetchData = async () => {
+            const userRef = doc(db, "users", "defaultUser");
+            const docSnap = await getDoc(userRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                setXP(data.xp || 0);
+                setStreak(data.streak || 0);
+            }
+        };
+        fetchData();
     }, []);
 
-    const completeQuest = async () => {
-        const newXP = xp + 10;
-        setXP(newXP);
-        setStreak(streak + 1);
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 3000);
+    // Update wizard message when XP/streak changes
+    useEffect(() => {
+        if (xp === 0) {
+            setWizardMessage("🧙‍♂️ \"Let the journey begin!\"");
+        } else if (xp < 100) {
+            setWizardMessage("🧙‍♂️ \"You're learning quickly!\"");
+        } else if (xp < 500) {
+            setWizardMessage("🧙‍♂️ \"The arcane arts suit you well.\"");
+        } else if (xp < 1000) {
+            setWizardMessage("🧙‍♂️ \"You're mastering the mystic scrolls!\"");
+        } else {
+            setWizardMessage("🧙‍♂️ \"Your wisdom rivals the ancients!\"");
+        }
+    }, [xp, streak]);
 
-        const docRef = doc(db, "users", "demoUser");
-        await setDoc(docRef, { xp: newXP, streak: streak + 1 });
+    const handleCompleteQuest = async () => {
+        const newXP = xp + 10;
+        const newStreak = streak + 1;
+        setXP(newXP);
+        setStreak(newStreak);
+
+        const userRef = doc(db, "users", "defaultUser");
+        await setDoc(userRef, { xp: newXP, streak: newStreak });
     };
 
     return (
-        <div className="app">
-            <div className="background" />
-            <motion.div className="glass-card" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
-                <h1>🎓 Studium</h1>
-                <p className="quote">🧙‍♂️ "{quote}"</p>
-                <Wizard />
-                <p>XP: {xp} | 🔥 Streak: {streak}</p>
-                <button className="quest-button" onClick={completeQuest}>Complete Quest</button>
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+            <motion.div
+                className="bg-white p-6 rounded-2xl shadow-xl text-center"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+            >
+                <h1 className="text-4xl font-bold mb-2">🎓 Studium</h1>
+                <p className="text-lg mb-2">{wizardMessage}</p>
+                <p className="mb-2">{title}</p>
+                <p className="mb-4">XP: {xp} | 🔥 Streak: {streak}</p>
+                <button
+                    className="bg-indigo-600 text-white px-4 py-2 rounded-xl hover:bg-indigo-700 transition"
+                    onClick={handleCompleteQuest}
+                >
+                    Complete Quest
+                </button>
             </motion.div>
         </div>
     );
 }
+
+export default App;
