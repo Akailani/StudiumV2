@@ -21,48 +21,68 @@ function App() {
         { level: 1000, name: 'Archmage' },
     ];
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const userRef = doc(db, 'users', userId);
-            const userSnap = await getDoc(userRef);
-            if (userSnap.exists()) {
-                const data = userSnap.data();
-                setXP(data.xp || 0);
-                setStreak(data.streak || 0);
-            }
-        };
-        fetchData();
-    }, []);
-
-    useEffect(() => {
-        const currentTitle = titles.reduce((acc, t) => (xp >= t.level ? t.name : acc), 'Adventurer');
-        setTitle(currentTitle);
-    }, [xp]);
-
-    const handleCompleteQuest = async () => {
+    const completeQuest = async () => {
         const newXP = xp + 50;
         const newStreak = streak + 1;
-
         setXP(newXP);
         setStreak(newStreak);
 
-        const newTitle = titles.reduce((acc, t) => (newXP >= t.level ? t.name : acc), 'Adventurer');
-        setTitle(newTitle);
-        setWizardMessage(`🧙‍♂️ "You gained 50 XP! Now you're a ${newTitle}!"`);
+        const newTitle = titles.slice().reverse().find(t => newXP >= t.level)?.name || 'Adventurer';
+        if (newTitle !== title) {
+            setTitle(newTitle);
+            setWizardMessage(`🧙‍♂️ "You gained 50 XP! Now you're a ${newTitle}!"`);
+        } else {
+            setWizardMessage(`🧙‍♂️ "+50 XP gained! Keep it up, ${title}!"`);
+        }
 
-        const userRef = doc(db, 'users', userId);
-        await setDoc(userRef, { xp: newXP, streak: newStreak }, { merge: true });
+        await setDoc(doc(db, 'users', userId), {
+            xp: newXP,
+            streak: newStreak,
+            title: newTitle,
+        });
     };
 
+    useEffect(() => {
+        const fetchUser = async () => {
+            const docRef = doc(db, 'users', userId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const userData = docSnap.data();
+                setXP(userData.xp || 0);
+                setStreak(userData.streak || 0);
+                setTitle(userData.title || 'Adventurer');
+            }
+        };
+        fetchUser();
+    }, []);
+
+    const currentTitle = titles.find(t => t.name === title);
+    const nextTitle = titles.find(t => t.level > (currentTitle?.level || 0));
+    const progressPercent = nextTitle
+        ? ((xp - currentTitle.level) / (nextTitle.level - currentTitle.level)) * 100
+        : 100;
+
     return (
-        <div className="container">
+        <div className="App bg-gray-100 min-h-screen p-8">
             <h1 className="text-4xl font-bold text-center mb-6">🎓 Studium</h1>
+            <div className="bg-white p-4 rounded-xl shadow-xl max-w-md mx-auto mb-4">
+                <p className="text-lg mb-2">{wizardMessage}</p>
+                <p className="text-sm text-gray-600 mb-2">{title}</p>
+                <p className="mb-2">XP: {xp} | 🔥 Streak: {streak}</p>
 
-            <p>{wizardMessage}</p>
-            <p>{title}</p>
-            <p>XP: {xp} | 🔥 Streak: {streak}</p>
+                <div className="w-full h-4 bg-gray-300 rounded overflow-hidden mb-3">
+                    <motion.div
+                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progressPercent}%` }}
+                        transition={{ duration: 0.5 }}
+                    />
+                </div>
 
-            <button onClick={handleCompleteQuest}>Complete Quest</button>
+                <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={completeQuest}>
+                    Complete Quest
+                </button>
+            </div>
 
             <Leaderboard />
         </div>
