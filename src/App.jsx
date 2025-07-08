@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import './App.css';
 import { db } from './firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import Leaderboard from './Leaderboard.js';
+import Leaderboard from './Leaderboard.jsx';
+
 
 
 
