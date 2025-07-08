@@ -1,39 +1,27 @@
+// src/App.jsx
+
 import React, { useState } from "react";
 import Confetti from "react-confetti";
-import Leaderboard from "./Leaderboard";
 
 const titles = [
-    { title: "Novice", level: 0 },
-    { title: "Adventurer", level: 100 },
-    { title: "Scholar", level: 200 },
-    { title: "Wizard", level: 300 },
-    { title: "Grandmaster", level: 500 },
+    { level: 0, name: "Novice" },
+    { level: 50, name: "Adventurer" },
+    { level: 200, name: "Scholar" },
+    { level: 500, name: "Wizard" },
+    { level: 1000, name: "Master" },
+    { level: 1400, name: "Grandmaster" },
 ];
 
-function getTitleForXP(xp) {
-    const current = titles
-        .slice()
-        .reverse()
-        .find((t) => xp >= t.level);
-    return current ? current.title : "Novice";
-}
-
-function getMessageForXP(xp) {
-    if (xp >= 500) return '🌟 "You are now a Grandmaster of Studium!"';
-    if (xp >= 300) return '🧙 "You gained 50 XP! Now you\'re a Wizard!"';
-    if (xp >= 200) return '📘 "You are now a Scholar!"';
-    if (xp >= 100) return '🧭 "You are now an Adventurer!"';
-    if (xp > 0) return '📚 "Keep going! You\'re learning!"';
-    return '🧙‍♂️ "Welcome, brave soul."';
-}
-
-function App() {
+export default function App() {
     const [xp, setXP] = useState(0);
     const [streak, setStreak] = useState(0);
+    const [message, setMessage] = useState("Welcome, brave soul.");
     const [showConfetti, setShowConfetti] = useState(false);
 
-    const title = getTitleForXP(xp);
-    const wizardMessage = getMessageForXP(xp);
+    const currentTitle = titles
+        .slice()
+        .reverse()
+        .find((title) => xp >= title.level)?.name || "Novice";
 
     const handleCompleteQuest = () => {
         const newXP = xp + 50;
@@ -42,37 +30,44 @@ function App() {
         setStreak(newStreak);
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 3000);
+
+        const newTitle = titles
+            .slice()
+            .reverse()
+            .find((title) => newXP >= title.level)?.name;
+
+        if (newTitle && newTitle !== currentTitle) {
+            setMessage(`You are now a ${newTitle} of Studium!`);
+        } else {
+            setMessage(`You gained 50 XP! Now you're a ${currentTitle}!`);
+        }
     };
 
     return (
-        <div className="h-screen flex items-center justify-center bg-[#f5f5f5] text-[#1a1a1a]">
+        <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4">
             {showConfetti && <Confetti />}
-            <div className="flex flex-col items-center justify-center text-center h-full w-full px-4">
-                <header className="mb-6">
-                    <h1 className="text-4xl font-bold flex items-center justify-center">
-                        <span className="mr-2">🎓</span> Studium
-                    </h1>
-                </header>
+            <header className="mb-12 text-center">
+                <h1 className="text-4xl font-bold mb-2">🎓 Studium</h1>
+            </header>
 
-                <p className="text-lg mb-1">{wizardMessage}</p>
-                <p className="text-md font-semibold">{title}</p>
-
-                <div className="flex gap-4 justify-center my-2">
-                    <span>XP: {xp}</span>
-                    <span>🔥 Streak: {streak}</span>
-                </div>
-
+            <main className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center space-y-4">
+                <p className="text-lg">🧙 "{message}"</p>
+                <p className="font-semibold">{currentTitle}</p>
+                <p>
+                    XP: <strong>{xp}</strong> | 🔥 Streak: <strong>{streak}</strong>
+                </p>
                 <button
                     onClick={handleCompleteQuest}
-                    className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded shadow mb-8"
+                    className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 transition"
                 >
                     Complete Quest
                 </button>
+            </main>
 
-                <Leaderboard />
-            </div>
+            <section className="mt-10 text-center">
+                <h2 className="text-2xl font-bold">🏆 Leaderboard</h2>
+                {/* Add leaderboard items here */}
+            </section>
         </div>
     );
 }
-
-export default App;
